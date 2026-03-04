@@ -1,3 +1,5 @@
+# Template for python code; tweak after we get the data.
+
 from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
