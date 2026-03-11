@@ -1,15 +1,19 @@
-# Template for python code; tweak after we get the data.
-
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
+import mysql.connector
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "dev-change-me"
 
-# Wait for the data first, then change this...
-USERS = {
-    "admin": "admin123",
-    "test": "test123",
-}
+def get_db_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
+        database="enterprise_db"
+    )
+
+
 
 @app.get("/login")
 def login_page():
@@ -24,10 +28,24 @@ def login_submit():
     if not username or not password:
         return redirect(url_for("login_page", err="missing"))
 
-    # TEMP auth check (Once again replace this with the actual hashed + data)
-    if USERS.get(username) == password:
-        session["user"] = username
-        return redirect(url_for("welcome"))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute(
+    "SELECT * FROM users WHERE username = %s",
+    (username,)
+)
+
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if user and check_password_hash(user["password"], password):
+         session["user"] = username
+         return redirect("/dashboard/")
+
 
     return redirect(url_for("login_page", err="invalid"))
 
@@ -42,5 +60,28 @@ def logout():
     session.clear()
     return redirect(url_for("login_page"))
 
+@app.get("/dashboard/")
+def dashboard():
+    if "user" not in session:
+        return redirect(url_for("login_page"))
+    return send_from_directory("../dashboard", "index.html")
+
+
+@app.get("/dashboard/css/<path:filename>")
+def dashboard_css(filename):
+    return send_from_directory("../dashboard/css", filename)
+
+
+@app.get("/dashboard/js/<path:filename>")
+def dashboard_js(filename):
+    return send_from_directory("../dashboard/js", filename)
+
+
+@app.get("/dashboard/img/<path:filename>")
+def dashboard_img(filename):
+    return send_from_directory("../dashboard/img", filename)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
