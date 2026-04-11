@@ -61,6 +61,12 @@ def logout():
     session.clear()
     return redirect(url_for("login_page"))
 
+@app.get("/api/me")
+def api_me():
+    if "user" not in session:
+        return jsonify({"error": "Not authenticated"}), 401
+    return jsonify({"username": session["user"]})
+
 # ── Dashboard static serving ───────────────────────────────────────────────────
 
 @app.get("/dashboard/")
