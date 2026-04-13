@@ -17,12 +17,16 @@
     {% endif %}
 
     <form method="POST" action="{{ url_for('login_submit') }}">
-      <label>Username:</label>
-      <input type="text" name="user" id="username" required><br><br>
+      <label>
+        Username:
+        <input type="text" name="user" id="username" required><br><br>
+      </label>
 
-      <label>Password:</label>
-      <input type="password" name="pass" id="password" required><br><br>
-
+      <label>
+        Password:
+        <input type="password" name="pass" id="password" required><br><br>
+      </label>
+      
       <input type="submit" id="loginBtn" value="Login">
     </form>
   </div>
