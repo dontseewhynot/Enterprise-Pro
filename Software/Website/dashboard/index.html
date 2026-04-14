@@ -238,7 +238,10 @@
 					document.getElementById("profile-username").textContent = data.username;
 				}
 			})
-			.catch(() => {});
+			.catch(err => {
+    			console.error("Error fetching profile:", err);
+    			document.getElementById("profile-username").textContent = "Guest";
+  			});
 
 		// Fetch total user count for stats panel
 		fetch("/api/users")
